@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "skipLibCheck": true,
+    "target": "ES2019",
+    "lib": ["ES2019", "ES2020.Promise"],
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "module": "commonjs",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "declaration": true,
+    "declarationMap": true,
+    "outDir": "./dist"
+  },
+  "exclude": ["node_modules", "dist"]
+}

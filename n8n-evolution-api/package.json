@@ -1,0 +1,49 @@
+{
+  "name": "n8n-nodes-evolution-api",
+  "version": "1.0.0",
+  "description": "n8n community node for Evolution API - Full WhatsApp integration with all features",
+  "keywords": [
+    "n8n-community-node-package",
+    "evolution-api",
+    "whatsapp",
+    "messaging"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/your-username/n8n-nodes-evolution-api",
+  "author": {
+    "name": "Your Name"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/n8n-nodes-evolution-api.git"
+  },
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc && gulp build:icons",
+    "dev": "tsc --watch",
+    "format": "prettier nodes credentials --write",
+    "lint": "eslint nodes credentials package.json",
+    "lintfix": "eslint nodes credentials package.json --fix",
+    "prepublishOnly": "npm run build && npm run lint -c .eslintrc.prepublish.js nodes credentials package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "n8n": {
+    "n8nNodesApiVersion": 1,
+    "credentials": [
+      "dist/credentials/EvolutionApi.credentials.js"
+    ],
+    "nodes": [
+      "dist/nodes/EvolutionApi/EvolutionApi.node.js"
+    ]
+  },
+  "devDependencies": {
+    "@types/node": "^18.16.16",
+    "n8n-workflow": "*",
+    "typescript": "^5.1.3"
+  },
+  "peerDependencies": {
+    "n8n-workflow": "*"
+  }
+}
