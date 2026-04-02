@@ -392,6 +392,21 @@ class EvolutionApi {
                         },
                     },
                 },
+                // ─── GIF Playback ───
+                {
+                    displayName: 'GIF Playback',
+                    name: 'gifPlayback',
+                    type: 'boolean',
+                    default: false,
+                    description: 'Whether to send the video as a GIF (auto-play, no sound). Only applies when Media Type is Video.',
+                    displayOptions: {
+                        show: {
+                            resource: ['message'],
+                            operation: ['sendMedia', 'sendMediaBase64'],
+                            mediaType: ['video'],
+                        },
+                    },
+                },
                 // ─── Caption ───
                 {
                     displayName: 'Caption',
@@ -1338,6 +1353,11 @@ class EvolutionApi {
                     const caption = this.getNodeParameter('caption', i);
                     const fileName = this.getNodeParameter('fileName', i);
                     body = { number, mediatype: mediaType, media: mediaUrl, caption, fileName };
+                    if (mediaType === 'video') {
+                        const gifPlayback = this.getNodeParameter('gifPlayback', i);
+                        if (gifPlayback)
+                            body.gifPlayback = true;
+                    }
                     if (options.delay)
                         body.delay = options.delay;
                 }
@@ -1350,6 +1370,11 @@ class EvolutionApi {
                     const caption = this.getNodeParameter('caption', i);
                     const fileName = this.getNodeParameter('fileName', i);
                     body = { number, mediatype: mediaType, media: mediaBase64, mimetype, caption, fileName };
+                    if (mediaType === 'video') {
+                        const gifPlayback = this.getNodeParameter('gifPlayback', i);
+                        if (gifPlayback)
+                            body.gifPlayback = true;
+                    }
                 }
                 else if (operation === 'sendAudio') {
                     method = 'POST';
