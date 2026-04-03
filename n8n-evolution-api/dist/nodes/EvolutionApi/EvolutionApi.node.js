@@ -92,6 +92,7 @@ class EvolutionApi {
                         { name: 'Send Media (URL)', value: 'sendMedia', action: 'Send image/video/document via URL' },
                         { name: 'Send Media (Base64)', value: 'sendMediaBase64', action: 'Send media as base64' },
                         { name: 'Send Audio', value: 'sendAudio', action: 'Send an audio message' },
+                        { name: 'Send GIF', value: 'sendGif', action: 'Send a GIF message' },
                         { name: 'Send Location', value: 'sendLocation', action: 'Send a location' },
                         { name: 'Send Contact', value: 'sendContact', action: 'Send a contact vCard' },
                         { name: 'Send Reaction', value: 'sendReaction', action: 'React to a message' },
@@ -290,7 +291,7 @@ class EvolutionApi {
                         show: {
                             resource: ['message'],
                             operation: [
-                                'sendText', 'sendMedia', 'sendMediaBase64', 'sendAudio',
+                                'sendText', 'sendMedia', 'sendMediaBase64', 'sendAudio', 'sendGif',
                                 'sendLocation', 'sendContact', 'sendReaction', 'sendPoll',
                                 'sendList', 'sendButtons', 'sendTemplate', 'sendStatus',
                                 'sendReply',
@@ -392,21 +393,6 @@ class EvolutionApi {
                         },
                     },
                 },
-                // ─── GIF Playback ───
-                {
-                    displayName: 'GIF Playback',
-                    name: 'gifPlayback',
-                    type: 'boolean',
-                    default: false,
-                    description: 'Whether to send the video as a GIF (auto-play, no sound). Only applies when Media Type is Video.',
-                    displayOptions: {
-                        show: {
-                            resource: ['message'],
-                            operation: ['sendMedia', 'sendMediaBase64'],
-                            mediaType: ['video'],
-                        },
-                    },
-                },
                 // ─── Caption ───
                 {
                     displayName: 'Caption',
@@ -417,7 +403,57 @@ class EvolutionApi {
                     displayOptions: {
                         show: {
                             resource: ['message'],
-                            operation: ['sendMedia', 'sendMediaBase64'],
+                            operation: ['sendMedia', 'sendMediaBase64', 'sendGif'],
+                        },
+                    },
+                },
+                // ─── GIF Data Source ───
+                {
+                    displayName: 'GIF Source',
+                    name: 'gifDataSource',
+                    type: 'options',
+                    options: [
+                        { name: 'URL', value: 'url' },
+                        { name: 'Base64', value: 'base64' },
+                    ],
+                    default: 'url',
+                    description: 'Whether to send a GIF from a URL or as Base64 encoded data',
+                    displayOptions: {
+                        show: {
+                            resource: ['message'],
+                            operation: ['sendGif'],
+                        },
+                    },
+                },
+                // ─── GIF URL ───
+                {
+                    displayName: 'Media URL',
+                    name: 'gifUrl',
+                    type: 'string',
+                    default: '',
+                    placeholder: 'https://example.com/animation.gif',
+                    description: 'URL of the GIF file to send',
+                    displayOptions: {
+                        show: {
+                            resource: ['message'],
+                            operation: ['sendGif'],
+                            gifDataSource: ['url'],
+                        },
+                    },
+                },
+                // ─── GIF Base64 ───
+                {
+                    displayName: 'Base64 Data',
+                    name: 'gifBase64',
+                    type: 'string',
+                    typeOptions: { rows: 4 },
+                    default: '',
+                    description: 'Base64 encoded GIF content',
+                    displayOptions: {
+                        show: {
+                            resource: ['message'],
+                            operation: ['sendGif'],
+                            gifDataSource: ['base64'],
                         },
                     },
                 },
@@ -1353,11 +1389,6 @@ class EvolutionApi {
                     const caption = this.getNodeParameter('caption', i);
                     const fileName = this.getNodeParameter('fileName', i);
                     body = { number, mediatype: mediaType, media: mediaUrl, caption, fileName };
-                    if (mediaType === 'video') {
-                        const gifPlayback = this.getNodeParameter('gifPlayback', i);
-                        if (gifPlayback)
-                            body.gifPlayback = true;
-                    }
                     if (options.delay)
                         body.delay = options.delay;
                 }
@@ -1370,11 +1401,22 @@ class EvolutionApi {
                     const caption = this.getNodeParameter('caption', i);
                     const fileName = this.getNodeParameter('fileName', i);
                     body = { number, mediatype: mediaType, media: mediaBase64, mimetype, caption, fileName };
-                    if (mediaType === 'video') {
-                        const gifPlayback = this.getNodeParameter('gifPlayback', i);
-                        if (gifPlayback)
-                            body.gifPlayback = true;
+                }
+                else if (operation === 'sendGif') {
+                    method = 'POST';
+                    endpoint = `/message/sendMedia/${instanceName}`;
+                    const gifDataSource = this.getNodeParameter('gifDataSource', i);
+                    const caption = this.getNodeParameter('caption', i);
+                    if (gifDataSource === 'url') {
+                        const gifUrl = this.getNodeParameter('gifUrl', i);
+                        body = { number, mediatype: 'video', mimetype: 'video/mp4', media: gifUrl, gifPlayback: true, caption };
                     }
+                    else {
+                        const gifBase64 = this.getNodeParameter('gifBase64', i);
+                        body = { number, mediatype: 'video', mimetype: 'video/mp4', media: gifBase64, gifPlayback: true, caption };
+                    }
+                    if (options.delay)
+                        body.delay = options.delay;
                 }
                 else if (operation === 'sendAudio') {
                     method = 'POST';

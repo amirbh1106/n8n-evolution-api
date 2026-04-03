@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node_modules/.bin/tsc)",
+      "Bash(node_modules/.bin/tsc --noEmit)",
+      "WebSearch",
+      "WebFetch(domain:doc.evolution-api.com)",
+      "WebFetch(domain:github.com)"
+    ]
+  }
+}
